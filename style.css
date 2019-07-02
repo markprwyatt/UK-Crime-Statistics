@@ -1,12 +1,21 @@
 .table {
-  border: 2px solid black;
+  border: 2px solid #fff;
+  font-family: "Fjalla One", sans-serif;
+  color: #fff;
+  background-color: #222c55;
+  width: 40%;
+}
+
+th {
+  border-bottom: solid #e91d24;
+  text-align: center;
 }
 
 td {
-  border: 2px solid black;
   padding: 1rem;
+  text-transform: capitalize;
 }
 
 tr {
-  border: 2px solid black;
+  border: 2px solid #fff;
 }

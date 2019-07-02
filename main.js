@@ -6,12 +6,24 @@ const table = document.querySelector(".table");
 
 let crimeStats = {};
 
-const getCrimeCategories = () => {
+// get locaiton of user
+
+window.navigator.geolocation.getCurrentPosition(
+  position => {
+    let lat = position.coords.latitude;
+    let long = position.coords.longitude;
+    getCrimeCategories(lat, long);
+  },
+  err => console.log(err),
+  { timeout: 5000 }
+);
+
+const getCrimeCategories = (lat, long) => {
   fetch("https://data.police.uk/api/crime-categories?date=2019-04")
     .then(res => res.json())
     .then(data => {
-      generateTableHeader(table);
       exportCategories(data);
+      getCrimesByLocation(lat, long);
     });
 };
 
@@ -24,7 +36,9 @@ const getCrimesByLocation = (lat, long) => {
     .then(response => response.json())
     .then(data => {
       // loop through data and update crime stat categories with their values
+      console.log(data);
 
+      console.log(data);
       for (let i = 0; i < data.length; i++) {
         for (let prop in crimeStats) {
           // update all crime with length of all data
@@ -42,32 +56,15 @@ const getCrimesByLocation = (lat, long) => {
       }
 
       // render table from crimeStats
-
+      generateTableHeader(table);
       generateTable(table, crimeStats);
     });
 };
 
-// get locaiton of user
-
-window.navigator.geolocation.getCurrentPosition(
-  position => {
-    let lat = position.coords.latitude;
-    let long = position.coords.longitude;
-    fetch(`https://data.police.uk/api/locate-neighbourhood?q=${lat},${long}`)
-      .then(response => response.json())
-      .then(data => {
-        let force = data.force;
-        let neighbourhood = data.neighbourhood;
-        getCrimeCategories();
-        getCrimesByLocation(lat, long);
-      });
-  },
-  err => console.log(err)
-);
-
 // Create table functions
 
 const generateTableHeader = table => {
+  console.log("Header");
   let thead = table.createTHead();
   let row = thead.insertRow();
   const headers = ["Crime", "Total"];
@@ -81,10 +78,14 @@ const generateTableHeader = table => {
 
 const generateTable = (table, obj) => {
   for (let props in obj) {
+    if (obj[props] === 0) {
+      continue;
+    }
     let row = table.insertRow();
     let cellCrime = row.insertCell();
     let cellNum = row.insertCell();
-    let crimeText = document.createTextNode([props]);
+    let crimeName = props.replace(/-/g, " ");
+    let crimeText = document.createTextNode(crimeName);
     let crimeNum = document.createTextNode(obj[props] + "");
     cellCrime.appendChild(crimeText);
     cellNum.appendChild(crimeNum);
